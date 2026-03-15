@@ -1,4 +1,5 @@
 from backend.encoders.nqueens import NQueensEncoder
+from backend.encoders.graph_coloring import GraphColoringEncoder
 from backend.sat_solver import SATSolver
 from backend.utils.decoder import decode_nqueens
 
@@ -19,6 +20,26 @@ def solve_nqueens(n):
 
     return {
         "board": board,
+        "clauses": cnf_formula.get_clauses(),
+        "num_variables": cnf_formula.num_variables,
+        "num_clauses": len(cnf_formula.get_clauses()),
+        "metadata": metadata
+    }
+
+def solve_graph_coloring(graph, k):
+    """
+    Runs the full SAT pipeline for the Graph Coloring problem.
+    """
+    # 1. & 2. Encode problem
+    encoder = GraphColoringEncoder(graph, k)
+    cnf_formula, metadata = encoder.encode()
+
+    # 3. & 4. Solve CNF
+    solver = SATSolver(cnf_formula)
+    model = solver.solve()
+
+    return {
+        "assignment": model,
         "clauses": cnf_formula.get_clauses(),
         "num_variables": cnf_formula.num_variables,
         "num_clauses": len(cnf_formula.get_clauses()),
